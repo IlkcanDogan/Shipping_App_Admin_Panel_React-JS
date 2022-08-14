@@ -1,0 +1,8 @@
+{
+  "short_name": "Sevkiyat Yönetim Paneli",
+  "name": "Sevkiyat Yönetim Paneli",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
