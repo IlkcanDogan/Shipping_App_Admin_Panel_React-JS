@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
 import { useHistory } from 'react-router-dom';
 import { Spinner, Table, Modal, Button } from 'react-bootstrap';
 import { API_URL, UserStorage } from '../core/constant';
@@ -7,7 +8,6 @@ import axios from 'axios';
 import { JsonToExcel } from "react-json-to-excel";
 import DatePicker, { registerLocale } from "react-datepicker";
 import tr from 'date-fns/locale/tr';
-import ImgsViewer from "react-images-viewer";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from 'moment';
 registerLocale('tr', tr);
@@ -303,8 +303,29 @@ export default function Shipments() {
         setTableJson(TableToJson('shipments', [0, 1, 2, 3, 4, 5, 6, 7, 8]))
     }, [shipments, filter])
 
+    const handlePrintDetail = () => {
+
+    }
+
+    const componentRef = useRef();
+    const handlePrint = useReactToPrint({
+        content: () => componentRef.current,
+        pageStyle: `
+        @media all {
+            .pagebreak {
+                display: none;
+            }
+        },
+        @media print {
+            .pagebreak {
+              page-break-before: always;
+            }
+          }`,
+        documentTitle: '`'
+    });
+
     return (
-        <div className='container-fluid mt-2'>
+        <div className='container-fluid mt-2' >
             {shipments._wait ? (
                 <center><Spinner animation="border" variant="primary" style={{ marginTop: 50 }} /></center>
             ) : (
@@ -549,126 +570,129 @@ export default function Shipments() {
             <Modal size="lg" show={detail.modalShow} onHide={() => setDetail(initDetail)}>
                 <Modal.Header>
                     <Modal.Title>Detaylar</Modal.Title>
+                    <button onClick={handlePrint} className="btn btn-success btn-sm">Yazdır</button>
                 </Modal.Header>
-                <Modal.Body>
-                    {detail._wait ? (
-                        <center>
-                            <Spinner animation="border" variant="primary" />
-                        </center>
-                    ) : (
-                        <React.Fragment>
-                            <div className='row'>
-                                <div className='col-12'>
-                                    <span style={{ color: '#000', fontSize: 18 }}>Sevkiyat</span>
-                                    <span style={{ color: '#000', fontSize: 18, float: 'right' }}>
-                                        {detail.data.customerCode} - {detail.data.customerFullname}
-                                    </span>
-                                    <div style={{ borderBottom: '2px solid black' }}></div>
-                                </div>
-                            </div>
-
-
-                            <div className='row'>
-                                <div className='col-12 col-lg-3'>
-                                    <div className='form-group mt-2'>
-                                        <label>Mağaza Adı</label>
-                                        <input
-                                            className='form-control form-control-sm mt-1'
-                                            value={detail.data.storeName}
-                                            disabled
-                                        />
-                                    </div>
-                                    <div className='form-group mt-2'>
-                                        <label>SMS Onay Kodu</label>
-                                        <input
-                                            className='form-control form-control-sm mt-1'
-                                            value={detail.data.smsCode || 'Kodsuz Onay'}
-                                            disabled
-                                        />
-                                    </div>
-                                    <div className='form-group mt-2'>
-                                        <label>Depo Adı</label>
-                                        <input
-                                            className='form-control form-control-sm mt-1'
-                                            value={detail.data.deliveryStoreName}
-                                            disabled
-                                        />
+                <div ref={componentRef}>
+                    <Modal.Body>
+                        {detail._wait ? (
+                            <center>
+                                <Spinner animation="border" variant="primary" />
+                            </center>
+                        ) : (
+                            <React.Fragment>
+                                <div className='row' >
+                                    <div className='col-12'>
+                                        <span style={{ color: '#000', fontSize: 18 }}>Sevkiyat</span>
+                                        <span style={{ color: '#000', fontSize: 18, float: 'right' }}>
+                                            {detail.data.customerCode} - {detail.data.customerFullname}
+                                        </span>
+                                        <div style={{ borderBottom: '2px solid black' }}></div>
                                     </div>
                                 </div>
-                                <div className='col-12 col-lg-3'>
-                                    <div className='form-group mt-2'>
-                                        <label>Müşteri GSM</label>
-                                        <input
-                                            className='form-control form-control-sm mt-1'
-                                            value={detail.data.phoneNumber}
-                                            disabled
-                                        />
+
+
+                                <div className='row'>
+                                    <div className='col-12 col-lg-3'>
+                                        <div className='form-group mt-2'>
+                                            <label>Mağaza Adı</label>
+                                            <input
+                                                className='form-control form-control-sm mt-1'
+                                                value={detail.data.storeName}
+                                                disabled
+                                            />
+                                        </div>
+                                        <div className='form-group mt-2 pagebreak' >
+                                            <label>SMS Onay Kodu</label>
+                                            <input
+                                                className='form-control form-control-sm mt-1'
+                                                value={detail.data.smsCode || 'Kodsuz Onay'}
+                                                disabled
+                                            />
+                                        </div>
+                                        <div className='form-group mt-2'>
+                                            <label>Depo Adı</label>
+                                            <input
+                                                className='form-control form-control-sm mt-1'
+                                                value={detail.data.deliveryStoreName}
+                                                disabled
+                                            />
+                                        </div>
                                     </div>
-                                    <div className='form-group mt-2'>
-                                        <label>Sevkiyatçı Açıklama</label>
-                                        {/* <input
+                                    <div className='col-12 col-lg-3'>
+                                        <div className='form-group mt-2'>
+                                            <label>Müşteri GSM</label>
+                                            <input
+                                                className='form-control form-control-sm mt-1'
+                                                value={detail.data.phoneNumber}
+                                                disabled
+                                            />
+                                        </div>
+                                        <div className='form-group mt-2'>
+                                            <label>Sevkiyatçı Açıklama</label>
+                                            {/* <input
                                             className='form-control form-control-sm mt-1'
                                             value={detail.data.detail}
                                             disabled
                                         /> */}
-                                        <textarea className='form-control form-control-sm mt-1' rows="1" disabled value={detail.data.detail} />
+                                            <textarea className='form-control form-control-sm mt-1' rows="1" disabled value={detail.data.detail} />
+                                        </div>
+                                        <div className='form-group mt-2'>
+                                            <label>Personel Açıklama</label>
+                                            <textarea className='form-control form-control-sm mt-1' rows="1" disabled value={detail.data.personelDetail} />
+                                        </div>
                                     </div>
-                                    <div className='form-group mt-2'>
-                                        <label>Personel Açıklama</label>
-                                        <textarea className='form-control form-control-sm mt-1' rows="1" disabled value={detail.data.personelDetail} />
+                                    <div className='col-12 col-lg-6'>
+                                        <div className='form-group mt-2'>
+                                            <label>Adres</label>
+                                            <textarea className='form-control form-control-sm mt-1' disabled value={detail.data.address} />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className='col-12 col-lg-6'>
-                                    <div className='form-group mt-2'>
-                                        <label>Adres</label>
-                                        <textarea className='form-control form-control-sm mt-1' disabled value={detail.data.address} />
-                                    </div>
-                                </div>
-                                
-                            </div>
-                            <div className='row'>
 
-                            </div>
+                                </div>
+                                <div className='row'>
 
-                            <div className='row mt-3'>
-                                <div className='col-12'>
-                                    <span style={{ color: '#000', fontSize: 18 }}>Satış</span>
-                                    <div style={{ borderBottom: '2px solid black' }}></div>
                                 </div>
-                            </div>
-                            <div className='row mt-3' style={{ textAlign: 'center' }}>
-                                <div className='overflow-auto' style={{ maxHeight: 200 }}>
-                                    <Table responsive bordered hover className='responsive-table' size="sm">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Stok Kodu</th>
-                                                <th>Ürün Adı</th>
-                                                <th>Adet</th>
-                                                <th>Kasiyer Adı Soyadı</th>
-                                                <th>Satıcı Adı Soyadı</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {detail.modalShow && detail.data.products.map((item, index) => {
-                                                return (
-                                                    <tr key={index}>
-                                                        <td>{index + 1}</td>
-                                                        <td>{item.sKodu}</td>
-                                                        <td>{item.sAciklama}</td>
-                                                        <td>{item.lGCMiktar}</td>
-                                                        <td>{item.KasiyerAdSoyad}</td>
-                                                        <td>{item.SaticiAdSoyad}</td>
-                                                    </tr>
-                                                )
-                                            })}
-                                        </tbody>
-                                    </Table>
+
+                                <div className='row mt-3'>
+                                    <div className='col-12'>
+                                        <span style={{ color: '#000', fontSize: 18 }}>Satış</span>
+                                        <div style={{ borderBottom: '2px solid black' }}></div>
+                                    </div>
                                 </div>
-                            </div>
-                        </React.Fragment>
-                    )}
-                </Modal.Body>
+                                <div className='row mt-3' style={{ textAlign: 'center' }}>
+                                    <div className='overflow-auto' style={{ maxHeight: 200 }}>
+                                        <Table responsive bordered hover className='responsive-table' size="sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Stok Kodu</th>
+                                                    <th>Ürün Adı</th>
+                                                    <th>Adet</th>
+                                                    <th>Kasiyer Adı Soyadı</th>
+                                                    <th>Satıcı Adı Soyadı</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {detail.modalShow && detail.data.products.map((item, index) => {
+                                                    return (
+                                                        <tr key={index}>
+                                                            <td>{index + 1}</td>
+                                                            <td>{item.sKodu}</td>
+                                                            <td>{item.sAciklama}</td>
+                                                            <td>{item.lGCMiktar}</td>
+                                                            <td>{item.KasiyerAdSoyad}</td>
+                                                            <td>{item.SaticiAdSoyad}</td>
+                                                        </tr>
+                                                    )
+                                                })}
+                                            </tbody>
+                                        </Table>
+                                    </div>
+                                </div>
+                            </React.Fragment>
+                        )}
+                    </Modal.Body>
+                </div>
                 <Modal.Footer>
                     {detail.data.status === "1" ? (
                         <Button variant="warning" style={{ position: 'absolute', left: 10 }} onClick={() => window.open(detail.data.photo, "_blank")} disabled={!detail.data.photo}>

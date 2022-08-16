@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
-
+input {
+  -webkit-user-select: text; /* Chrome, Opera, Safari */
+  -moz-user-select: text; /* Firefox 2+ */
+  -ms-user-select: text; /* IE 10+ */
+  user-select: text; /* Standard syntax */
+}
 $sidebar-bg-color: #0c1e35;
 $submenu-bg-color: rgba(255, 255, 255, 0.05);
 $submenu-bg-color-collapsed: rgba(#0c1e35, 0.95);

@@ -1,7 +1,7 @@
 {
   "name": "sevkiyat_yonetim_paneli",
-  "version": "1.0.0",
-  "homepage": "http://domain/sevkiyat",
+  "version": "2.2.0",
+  "homepage": "http://domain.com/sevkiyat",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",
@@ -51,6 +51,7 @@
     ]
   },
   "devDependencies": {
-    "json-loader": "^0.5.7"
+    "json-loader": "^0.5.7",
+    "react-to-print": "^2.14.7"
   }
 }
